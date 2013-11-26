@@ -10,7 +10,7 @@ import traceback
 from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect
 
-from pyroven import (MalformedResponseError, InvalidResponseError, 
+from pyroven import (MalformedResponseError, InvalidResponseError,
                      RavenResponse, PublicKeyNotFoundError)
 
 from pyroven.utils import setting
@@ -22,10 +22,10 @@ class HttpResponseSeeOther(HttpResponseRedirect):
 
 class RavenAuthBackend(object):
     """An authentication backend for django that uses Raven.  To use, add
-    'pyroven.backends.RavenAuthBackend' to AUTHENTICATION_BACKENDS 
+    'pyroven.backends.RavenAuthBackend' to AUTHENTICATION_BACKENDS
     in your django settings.py."""
 
-    def authenticate(self, response_str=None):
+    def authenticate(self, request, response_str=None):
         """Checks a response from the Raven server and sees if it is valid.  If
         it is, returns the User with the same username as the Raven username.
         @return User object, or None if authentication failed"""
@@ -33,7 +33,7 @@ class RavenAuthBackend(object):
         if response_str is None:
             return None
 
-        response = RavenResponse(response_str)
+        response = RavenResponse(response_str, request)
 
         # Check that everything is correct, and return
         try:
@@ -53,7 +53,7 @@ class RavenAuthBackend(object):
             return None
 
         username = response.principal
- 
+
         if username is None:
             return None
 
@@ -76,7 +76,7 @@ class RavenAuthBackend(object):
                 return user
             else:
                 print("User %s not created" % username)
-            
+
             return None
         else:
             print("%s successfully authenticated via Raven" % username)

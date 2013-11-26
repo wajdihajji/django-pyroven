@@ -31,20 +31,22 @@ urlpatterns = patterns('',
 )
 ````
 
+If the HTML GET parameter "?next=page" is passed to the pyroven 'raven_login' view, then the pyroven will redirect to this page after successful login.
+
 ## Minimum Config Settings
 
 You then need to configure the app's settings. Raven has a live and test environments, the URL and certificate details are given below.
 
-There are four minimum config settings:
+There are three minimum config settings:
 
 ```python
 PYROVEN_LOGIN_URL: a string representing the URL for the Raven login redirect.
 PYROVEN_LOGOUT_URL: a string representing the logout URL for Raven
-PYROVEN_RETURN_URL: the URL of your app which the Raven service should 
-    return the user to after authentication
 PYROVEN_CERTS: a dictionary including key names and their associated 
     certificates which can be downloaded from the Raven project pages.
 ```
+
+The return URL will be reverse mapped from the view 'raven_return' which is include in the pyroven url definitions.
 
 The final major setting is:
 
@@ -59,7 +61,6 @@ An example, referencing the Raven test environment is given below:
 ```python
 PYROVEN_LOGIN_URL = 'https://demo.raven.cam.ac.uk/auth/authenticate.html'
 PYROVEN_LOGOUT_URL = 'https://demo.raven.cam.ac.uk/auth/logout.html'
-PYROVEN_RETURN_URL = 'http://your.example.com/raven_return/'
 PYROVEN_CERTS = {'901': """-----BEGIN CERTIFICATE-----
 MIIDzTCCAzagAwIBAgIBADANBgkqhkiG9w0BAQQFADCBpjELMAkGA1UEBhMCR0Ix
 EDAOBgNVBAgTB0VuZ2xhbmQxEjAQBgNVBAcTCUNhbWJyaWRnZTEgMB4GA1UEChMX

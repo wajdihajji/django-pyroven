@@ -6,6 +6,7 @@ import hashlib
 import urllib
 
 from OpenSSL.crypto import FILETYPE_PEM, load_certificate, verify
+from django.core.urlresolvers import reverse
 
 from pyroven.utils import decode_sig, setting, parse_time
 
@@ -52,13 +53,13 @@ class RavenResponse(object):
               560:'WAA not authorised to use this WLS',
               570:'Authentication declined'}
 
-    def __init__(self, response_str):
+    def __init__(self, response_str, request):
         """Makes a Ravenresponse object from a reponse string passed with
         HTTP GET.
         @param reponse_str The response string, normally passed as
         GET['WLS-Response']
         """
-        PYROVEN_RETURN_URL = setting('PYROVEN_RETURN_URL')
+        PYROVEN_RETURN_URL = request.build_absolute_uri(reverse('raven_return'))
         PYROVEN_LOGIN_URL = setting('PYROVEN_LOGIN_URL')
         PYROVEN_LOGOUT_URL = setting('PYROVEN_LOGOUT_URL')
         PYROVEN_VER = setting('PYROVEN_VERSION', 2)
@@ -77,7 +78,7 @@ class RavenResponse(object):
         except ValueError:
             print("Version is not integer")
             raise MalformedResponseError("Version number must be integer")
-            
+
         if self.ver != PYROVEN_VER:
             print("Version number doesn't match config")
             raise MalformedResponseError("Version number does not match that "
@@ -92,7 +93,7 @@ class RavenResponse(object):
             raise MalformedResponseError("Wrong number of parameters in "
                                          "response: expected 13, got %d"
                                          % len(tokens))
-        
+
         # Get all the tokens from the request
         try:
             self.status = int(tokens[1])
@@ -124,9 +125,9 @@ class RavenResponse(object):
         self.params = tokens[10]
         self.kid = tokens[11]
         self.sig = decode_sig(tokens[12])
-        
+
         # Check that the URL is as expected
-        if self.url != PYROVEN_RETURN_URL:
+        if self.url.split('?')[0] != PYROVEN_RETURN_URL:
             print("URL does not match")
             raise InvalidResponseError("The URL in the response does not match "
                                        "the URL expected")
@@ -136,7 +137,7 @@ class RavenResponse(object):
             print("Timestamp in future")
             raise InvalidResponseError("The timestamp on the response is in "
                                        "the future")
-        if self.issue < time.time() - PYROVEN_MAX_CLOCK_SKEW - PYROVEN_TIMEOUT: 
+        if self.issue < time.time() - PYROVEN_MAX_CLOCK_SKEW - PYROVEN_TIMEOUT:
             print("Response has timed out - issued %s, now %s" % (time.asctime(time.gmtime(self.issue)),
                                                                 time.asctime()))
             raise InvalidResponseError("The response has timed out")
@@ -155,7 +156,7 @@ class RavenResponse(object):
         elif self.sso != "" and not PYROVEN_IACT:
             # Authentication was not done recently, and that is acceptable to us
             if PYROVEN_IACT != None:
-                
+
                 # Get the list of auth types used on previous occasions and
                 # check that at least one of them is acceptable to us
                 auth_good = False
@@ -196,7 +197,7 @@ class RavenResponse(object):
         # Create data string used for hash
         # http://raven.cam.ac.uk/project/waa2wls-protocol.txt
         data = '!'.join(tokens[0:11])
-        
+
         # Check that it matches
         try:
             verify(cert, self.sig, data, 'sha1')
