@@ -1,6 +1,6 @@
 import urllib
 
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth import authenticate, login, logout
 from django.core.urlresolvers import reverse
 
@@ -16,6 +16,8 @@ def raven_return(request):
 
     if user is None:
         "Print no user"
+    elif not user.is_active:
+        return HttpResponse("Your account has been disabled")
     else:
         login(request, user)
 
