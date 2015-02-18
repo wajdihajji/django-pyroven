@@ -72,6 +72,7 @@ class RavenAuthBackend(object):
                 print("Creating user for %s" % username)
                 user = User(username=username)
                 user.set_unusable_password()
+                user.email = "%s@cam.ac.uk" % username
                 user.save()
                 return user
             else:
