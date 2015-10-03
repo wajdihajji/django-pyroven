@@ -34,7 +34,6 @@ def raven_return(request):
 
     extra_url_arg_values = {}
     extra_url_args = set(setting('PYROVEN_PASSTHROUGH_URL_ARGS', []))
-    extra_url_args.add('next')
     for k in extra_url_args:
         if k in request.GET:
             extra_url_arg_values[k] = request.GET.get(k)
