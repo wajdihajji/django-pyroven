@@ -1,7 +1,6 @@
 import time
 import calendar
 
-from string import maketrans
 from base64 import b64decode
 
 from django.conf import settings
@@ -11,7 +10,7 @@ def decode_sig(sig):
     """Decodes a signature from the variant base64 used by raven.
     @param sig  A string giving the signature in Raven's variant base-64
     @return  A binary string containing the signature"""
-    table = maketrans("-._", "+/=")
+    table = str.maketrans("-._", "+/=")
     sig = str(sig).translate(table)
     try:
         return b64decode(sig)

@@ -4,7 +4,7 @@
 Provides the backend for the Django Pyroven
 """
 
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import traceback
 
 from django.contrib.auth.models import User
@@ -65,22 +65,22 @@ class RavenAuthBackend(object):
         try:
             user = User.objects.get(username=username)
         except User.DoesNotExist:
-            print("Successfully authenticated as %s in Raven, but that user "
-                  "does not exist in Django" % username)
+            print(("Successfully authenticated as %s in Raven, but that user "
+                  "does not exist in Django" % username))
 
             if setting('PYROVEN_CREATE_USER', default=False) == True:
-                print("Creating user for %s" % username)
+                print(("Creating user for %s" % username))
                 user = User(username=username)
                 user.set_unusable_password()
                 user.email = "%s@cam.ac.uk" % username
                 user.save()
                 return user
             else:
-                print("User %s not created" % username)
+                print(("User %s not created" % username))
 
             return None
         else:
-            print("%s successfully authenticated via Raven" % username)
+            print(("%s successfully authenticated via Raven" % username))
             return user
 
     def get_user(self, user_id):
@@ -89,7 +89,7 @@ class RavenAuthBackend(object):
         try:
             user = User.objects.get(pk=user_id)
         except User.DoesNotExist:
-            print("No such user: %s" % user_id)
+            print(("No such user: %s" % user_id))
             return None
         else:
             return user

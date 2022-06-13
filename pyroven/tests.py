@@ -5,7 +5,6 @@ Contains tests for the pyroven application
 
 from datetime import datetime, timedelta
 from base64 import b64encode
-from string import maketrans
 
 from django.test import TestCase
 from django.test.client import Client
@@ -66,7 +65,7 @@ def create_wls_response(raven_ver='2', raven_status='200', raven_msg='',
     using keys from https://raven.cam.ac.uk/project/keys/demo_server/
     """
     raven_pkey = load_privatekey(FILETYPE_PEM, raven_key_pem) 
-    trans_table = maketrans("+/=", "-._")
+    trans_table = str.maketrans("+/=", "-._")
 
     # This is the data which is signed by Raven with their private key
     # Note data consists of full payload with exception of kid and sig

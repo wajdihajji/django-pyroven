@@ -1,4 +1,4 @@
-import urllib
+import urllib.request, urllib.parse, urllib.error
 
 from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth import authenticate, login, logout
@@ -40,7 +40,7 @@ def raven_return(request):
 
     url_extra = ''
     if len(extra_url_args) > 0:
-        url_extra = "?%s" % "&".join(["%s=%s" % (k, v) for (k, v) in extra_url_arg_values.items()])
+        url_extra = "?%s" % "&".join(["%s=%s" % (k, v) for (k, v) in list(extra_url_arg_values.items())])
 
     return HttpResponseRedirect(next_page + url_extra)
 
@@ -59,11 +59,11 @@ def raven_login(request):
 
     url_extra = ''
     if len(extra_url_args) > 0:
-        url_extra = "?%s" % "&".join(["%s=%s" % (k, v) for (k, v) in extra_url_arg_values.items()])
+        url_extra = "?%s" % "&".join(["%s=%s" % (k, v) for (k, v) in list(extra_url_arg_values.items())])
 
     relative_return_url = "%s%s" % (reverse('raven_return'), url_extra)
 
-    encoded_return_url = urllib.quote(request.build_absolute_uri(relative_return_url))
+    encoded_return_url = urllib.parse.quote(request.build_absolute_uri(relative_return_url))
     return HttpResponseSeeOther("%s?ver=%d&url=%s" % (login_url, 2,
                                                       encoded_return_url)
                                 )

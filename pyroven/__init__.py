@@ -3,7 +3,7 @@
 import calendar, time
 import ast
 import hashlib
-import urllib
+import urllib.request, urllib.parse, urllib.error
 
 from OpenSSL.crypto import FILETYPE_PEM, load_certificate, verify
 from django.core.urlresolvers import reverse
@@ -109,7 +109,7 @@ class RavenResponse(object):
             raise MalformedResponseError("Issue time is not a valid Raven "
                                           "time, not %s" % tokens[3])
         self.ident = tokens[4]
-        self.url = urllib.unquote(tokens[5])
+        self.url = urllib.parse.unquote(tokens[5])
         self.principal = tokens[6]
         self.auth = tokens[7]
         self.sso = tokens[8]
@@ -138,8 +138,8 @@ class RavenResponse(object):
             raise InvalidResponseError("The timestamp on the response is in "
                                        "the future")
         if self.issue < time.time() - PYROVEN_MAX_CLOCK_SKEW - PYROVEN_TIMEOUT:
-            print("Response has timed out - issued %s, now %s" % (time.asctime(time.gmtime(self.issue)),
-                                                                time.asctime()))
+            print(("Response has timed out - issued %s, now %s" % (time.asctime(time.gmtime(self.issue)),
+                                                                time.asctime())))
             raise InvalidResponseError("The response has timed out")
 
         # Check that the type of authentication was acceptable
@@ -201,7 +201,7 @@ class RavenResponse(object):
         # Check that it matches
         try:
             verify(cert, self.sig, data, 'sha1')
-        except Exception, e:
+        except Exception as e:
             raise InvalidResponseError("The signature for this "
                                         "response is not valid.")
 
